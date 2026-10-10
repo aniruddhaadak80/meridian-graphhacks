@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "env": {
+    "FALKORDB_URL": "@falkordb-url",
+    "TENANT_DEFAULT": "acme-robotics"
+  }
+}

@@ -1,0 +1,29 @@
+services:
+  falkordb:
+    image: falkordb/falkordb:latest
+    ports:
+      - "6379:6379"
+      - "3000:3000"
+    volumes:
+      - falkordb-data:/data
+    environment:
+      - FALKORDB_ARGS=--save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      falkordb:
+        condition: service_healthy
+    environment:
+      - FALKORDB_URL=redis://falkordb:6379
+      - TENANT_DEFAULT=acme-robotics
+
+volumes:
+  falkordb-data:

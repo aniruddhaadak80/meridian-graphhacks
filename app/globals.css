@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+html, body { background: #05060a; }
+::selection { background: #7c5cff; color: white; }
+
+.bg-grid {
+  background-image: linear-gradient(rgba(124,92,255,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,92,255,.08) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, black 40%, transparent 75%);
+}
+.glass { background: rgba(11,14,23,.72); backdrop-filter: blur(18px); border: 1px solid #1b2236; }
+.glow-text {
+  background: linear-gradient(92deg, #b6ff5c 0%, #38e1ff 35%, #7c5cff 70%, #ff5c8a 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.card-hover { transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
+.card-hover:hover { transform: translateY(-4px); border-color: #7c5cff; box-shadow: 0 20px 60px -20px rgba(124,92,255,.5); }
+.mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+.scroll-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: #2a3352; border-radius: 99px; }
+@keyframes floaty { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(56,225,255,.5)} 100% { box-shadow: 0 0 0 18px rgba(56,225,255,0)} }
+.animate-floaty { animation: floaty 6s ease-in-out infinite; }
+.animate-ring { animation: pulse-ring 2s ease-out infinite; }
+.markdown-body h2 { @apply text-xl font-bold mt-4 mb-2; }
+.markdown-body p { @apply text-slate-300 leading-relaxed my-2 text-[15px]; }
+.markdown-body code { @apply mono text-[13px] bg-white/5 px-1.5 py-0.5 rounded text-cyanx; }
+.markdown-body strong { @apply text-white; }
+.markdown-body ul { @apply list-disc ml-5 text-slate-300; }
