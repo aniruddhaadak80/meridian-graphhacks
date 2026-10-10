@@ -66,7 +66,7 @@ export default function Home() {
         <div className="flex flex-wrap justify-center gap-3 mt-8">
           <Link href="/console" className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-neon to-cyanx text-black font-bold">⚡ Investigate inc_2041 live</Link>
           <Link href="/console?q=who%20knows%20payments-api%3F" className="px-7 py-3.5 rounded-2xl glass font-semibold card-hover">Who knows payments-api?</Link>
-          <a href="https://github.com" target="_blank" className="px-7 py-3.5 rounded-2xl glass font-semibold card-hover mono text-sm">★ public repo + readme</a>
+          <a href="https://github.com/aniruddhaadak80/meridian-graphhacks" target="_blank" className="px-7 py-3.5 rounded-2xl glass font-semibold card-hover mono text-sm">★ public repo + readme</a>
         </div>
 
         {/* live stats strip */}

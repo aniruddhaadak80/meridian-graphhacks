@@ -11,7 +11,7 @@
 
 Agents are only as good as their context. Meridian gives a **4-agent crew one FalkorDB graph** to reason over, remember in, and act on — with the **Cypher path as proof** behind every answer.
 
-**Live demo:** `https://<your-vercel>.vercel.app/console` · **Video:** `<add Loom link>` · **Tracks:** All three (primary: Agents That Act on Connected Data)
+**Live demo:** `https://meridian-graphhacks-aniruddha-adaks-projects.vercel.app/console` (mirror keeps demo alive without FalkorDB; set `FALKORDB_URL` for live) · **Video:** `<add Loom link before Oct 18>` · **Tracks:** All three (primary: Agents That Act on Connected Data)
 
 ---
 
