@@ -4,7 +4,6 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "env": {
-    "FALKORDB_URL": "@falkordb-url",
     "TENANT_DEFAULT": "acme-robotics"
   }
 }
