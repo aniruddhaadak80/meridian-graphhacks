@@ -1,9 +1,9 @@
 # Submission — Graph Hacks: Context for AI Agents
 
 **Project:** MERIDIAN — Living Company Brain
-**Team:** solo (Aniruddha Adak) + AI pair
+**Team:** solo (Aniruddha Adak) + AI coding assistant (disclosed per Rules — all graph model, queries, architecture verified by author)
 **Tracks:** All three — 01 Agents That Act on Connected Data · 02 Agent Memory & Coordination · 03 Company Brain (primary: 01)
-**Repo:** `<paste public GitHub URL>` (public, MIT)
+**Repo:** `https://github.com/aniruddhaadak80/meridian-graphhacks` (public, MIT)
 **Live:** `https://meridian-graphhacks.vercel.app/console` (+ `/` landing)
 **Video:** `<paste Loom/YouTube link, <3 min>`
 **FalkorDB:** primary graph DB (`falkordb` npm, RESP/OpenCypher, `meridian_<tenant>` graphs). Live with `FALKORDB_URL`; in-memory mirror keeps Vercel demo alive.
