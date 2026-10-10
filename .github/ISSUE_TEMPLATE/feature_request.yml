@@ -1,0 +1,21 @@
+name: Feature request
+description: A new agent capability, tool, graph algorithm, or dataviz
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Which track does it serve — 01 Act, 02 Memory, or 03 Company Brain?
+    validations: { required: true }
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Agent, tool name, Cypher/algorithm, and the expected answer shape
+    validations: { required: true }
+  - type: textarea
+    id: graph
+    attributes:
+      label: Graph impact
+      description: New node/edge types, and how you'd prove the graph does the work

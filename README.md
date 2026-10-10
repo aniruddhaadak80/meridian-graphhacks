@@ -199,7 +199,10 @@ lib/graph/algorithms.ts BFS/shortestPath/blastRadius/PageRank/whoKnows/rootCause
 lib/memory/memory.ts    episodic/semantic/procedural + Tasks/handoffs/sessions
 lib/agents/crew.ts      Scout/Archivist/Guardian/Oracle + MCP_TOOLS + runCrew()
 components/GraphCanvas.tsx  canvas graph viz with path highlight + hover
-scripts/{seed,eval}.ts  seed + 8-check eval harness
+scripts/{seed,eval,shots}.ts  seed + eval harness + screenshot capture (npm run shots)
+public/{logo,screenshots/*,diagrams/*}  favicon, real screenshots, SVG diagrams
+CONTRIBUTING.md · SECURITY.md · SUBMISSION.md      how to help, security policy, judge submission pack
+.github/{ISSUE_TEMPLATE,PULL_REQUEST_TEMPLATE,workflows/ci.yml}
 ```
 
 ---

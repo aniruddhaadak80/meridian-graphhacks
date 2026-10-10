@@ -1,0 +1,28 @@
+name: Bug report
+description: Something in Meridian breaks, misbehaves, or looks wrong
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include the question you asked or the endpoint you called
+      placeholder: "POST /api/chat { question: 'investigate inc_2041' } returned ..."
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations: { required: true }
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Backend mode
+      options: [FalkorDB (live), in-memory mirror]
+    validations: { required: true }
+  - type: input
+    id: env
+    attributes:
+      label: Tenants + versions
+      placeholder: "tenant=acme-robotics · Node 22 · npm 11"
+    validations: { required: true }
