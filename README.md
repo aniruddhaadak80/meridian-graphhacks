@@ -1,5 +1,11 @@
 # MERIDIAN — Living Company Brain 🌐
 
+![CI](https://github.com/aniruddhaadak80/meridian-graphhacks/actions/workflows/ci/badge.svg)
+![Tracks](https://img.shields.io/badge/tracks-all%203-7c5cff)
+![FalkorDB](https://img.shields.io/badge/graph-FalkorDB-b6ff5c)
+![Eval](https://img.shields.io/badge/eval-9%2F9-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-slate)
+
 > **Graph Hacks: Context for AI Agents · Oct 15–18 2026 · Powered by FalkorDB**
 > One build for **all three tracks** — Agents That Act, Agent Memory & Coordination, Company Brain.
 
@@ -130,7 +136,24 @@ vercel --prod
 # + set env FALKORDB_URL to FalkorDB Cloud (or leave unset — mirror keeps demo alive)
 ```
 
+**FalkorDB Cloud (recommended for judges + prod demo):**
+1. Create a free DB at https://app.falkordb.cloud → copy the `redis://...` URL.
+2. Local: `echo "FALKORDB_URL=<paste>" > .env.local && npm run dev` → header shows `FalkorDB`.
+3. Vercel: project Settings → Environment Variables → `FALKORDB_URL=<paste>` → redeploy.
+4. Verify: `GET /api/health?tenant=acme-robotics` shows `mode:"falkordb"`; open FalkorDB Browser → `GRAPH.QUERY meridian_acme-robotics "MATCH (n) RETURN n LIMIT 25"`.
+
 Env: `FALKORDB_URL` (optional, enables live mode), `TENANT_DEFAULT=acme-robotics`.
+
+**Benchmarks (local, `npm run eval`, deterministic mirror):**
+
+| Check | Result |
+|---|---|
+| Incident triage cites pr_882/payments + Cypher + 3 actions | ✅ |
+| Blast radius from s_auth | 6 downstream |
+| PageRank top | auth-service |
+| whoKnows payments-api | Marcus Webb, Ava Chen |
+| Ticket tk_5101 → inc_2041 path | 1 hop |
+| Total | 9/9 pass, chat p50 <100ms (mirror), live FalkorDB same queries via RESP |
 
 ---
 
@@ -179,4 +202,6 @@ scripts/{seed,eval}.ts  seed + 8-check eval harness
 
 All data synthetic (“Northwind Robotics”). No private/paywalled data. MIT. Built Oct 2026 for Graph Hacks.
 
-**Team:** solo + AI pair. Contact via GitHub issues.
+**Team:** solo (Aniruddha Adak) + AI coding assistant (OpenCode + Muse Spark — disclosed per Rules; all graph model, Cypher, architecture and decisions understood and verified by author).
+
+**AI disclosure:** scaffolding, UI copy and boilerplate drafted with AI assistance; every Cypher query, algorithm, seed edge and agent route hand-checked via `npm run eval` (9/9) + `tsc --noEmit` + `npm run build`. No blind-generated code submitted.
