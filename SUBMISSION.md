@@ -4,7 +4,7 @@
 **Team:** solo (Aniruddha Adak) + AI pair
 **Tracks:** All three — 01 Agents That Act on Connected Data · 02 Agent Memory & Coordination · 03 Company Brain (primary: 01)
 **Repo:** `<paste public GitHub URL>` (public, MIT)
-**Live:** `https://meridian-graphhacks-aniruddha-adaks-projects.vercel.app/console` (+ `/` landing)
+**Live:** `https://meridian-graphhacks.vercel.app/console` (+ `/` landing)
 **Video:** `<paste Loom/YouTube link, <3 min>`
 **FalkorDB:** primary graph DB (`falkordb` npm, RESP/OpenCypher, `meridian_<tenant>` graphs). Live with `FALKORDB_URL`; in-memory mirror keeps Vercel demo alive.
 
