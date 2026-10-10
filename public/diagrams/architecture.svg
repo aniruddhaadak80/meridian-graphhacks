@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" font-family="JetBrains Mono, monospace">
+  <rect width="1200" height="520" rx="24" fill="#05060a"/>
+  <text x="40" y="48" fill="#38e1ff" font-size="20" font-weight="bold">MERIDIAN ARCHITECTURE · one graph, three jobs</text>
+  <!-- console -->
+  <g>
+    <rect x="40" y="80" width="320" height="150" rx="16" fill="#0b0e17" stroke="#7c5cff" stroke-width="2"/>
+    <text x="60" y="112" fill="#b6ff5c" font-size="14" font-weight="bold">MERIDIAN CONSOLE</text>
+    <text x="60" y="136" fill="#e2e8ff" font-size="12">chat · incident triage</text>
+    <text x="60" y="156" fill="#e2e8ff" font-size="12">graph canvas · cypher playground</text>
+    <text x="60" y="176" fill="#e2e8ff" font-size="12">memory + handoffs · MCP strip</text>
+    <text x="60" y="202" fill="#8b95b0" font-size="11">POST /api/chat {q, tenant}</text>
+  </g>
+  <!-- crew -->
+  <g>
+    <rect x="440" y="80" width="320" height="150" rx="16" fill="#0b0e17" stroke="#38e1ff" stroke-width="2"/>
+    <text x="460" y="112" fill="#38e1ff" font-size="14" font-weight="bold">AGENT CREW · lib/agents</text>
+    <text x="460" y="136" fill="#e2e8ff" font-size="12">Scout (anchor) → Archivist (recall)</text>
+    <text x="460" y="156" fill="#e2e8ff" font-size="12">→ Guardian (act) → Oracle (explain)</text>
+    <text x="460" y="176" fill="#e2e8ff" font-size="12">deterministic · no LLM key needed</text>
+    <text x="460" y="202" fill="#8b95b0" font-size="11">8 MCP tools · timeline + Cypher</text>
+  </g>
+  <!-- graph layer -->
+  <g>
+    <rect x="440" y="270" width="320" height="170" rx="16" fill="#0b0e17" stroke="#b6ff5c" stroke-width="2"/>
+    <text x="460" y="302" fill="#b6ff5c" font-size="14" font-weight="bold">GRAPH LAYER · lib/graph</text>
+    <text x="460" y="326" fill="#e2e8ff" font-size="12">blastRadius BFS · shortestPath</text>
+    <text x="460" y="346" fill="#e2e8ff" font-size="12">PageRank · whoKnows · rootCause</text>
+    <text x="460" y="366" fill="#e2e8ff" font-size="12">episodic / semantic / procedural</text>
+    <text x="460" y="392" fill="#8b95b0" font-size="11">every call logs exact Cypher</text>
+    <text x="460" y="412" fill="#8b95b0" font-size="11">CYPHER_LOG → /api/health</text>
+  </g>
+  <!-- backends -->
+  <g>
+    <rect x="840" y="270" width="320" height="78" rx="16" fill="#0b0e17" stroke="#ff5c8a" stroke-width="2"/>
+    <text x="860" y="300" fill="#ff5c8a" font-size="14" font-weight="bold">FalkorDB · LIVE</text>
+    <text x="860" y="322" fill="#8b95b0" font-size="11">falkordb npm · RESP/OpenCypher</text>
+    <text x="860" y="322" fill="#8b95b0" font-size="11" dx="0" dy="0"/>
+  </g>
+  <g>
+    <rect x="840" y="362" width="320" height="78" rx="16" fill="#0b0e17" stroke="#ffb224" stroke-width="2"/>
+    <text x="860" y="392" fill="#ffb224" font-size="14" font-weight="bold">IN-MEMORY MIRROR</text>
+    <text x="860" y="414" fill="#8b95b0" font-size="11">Vercel-safe · identical domain API</text>
+  </g>
+  <g>
+    <rect x="840" y="80" width="320" height="150" rx="16" fill="#0b0e17" stroke="#1b2236" stroke-width="2"/>
+    <text x="860" y="112" fill="#c9b8ff" font-size="14" font-weight="bold">MULTIGRAPH PER TENANT</text>
+    <text x="860" y="136" fill="#e2e8ff" font-size="12">meridian_acme-robotics</text>
+    <text x="860" y="156" fill="#e2e8ff" font-size="12">meridian_globex · meridian_initech</text>
+    <text x="860" y="176" fill="#e2e8ff" font-size="12">isolated memory + incidents</text>
+    <text x="860" y="202" fill="#8b95b0" font-size="11">switch via tenant pills / ?tenant=</text>
+  </g>
+  <!-- arrows -->
+  <g stroke="#7c5cff" stroke-width="2" fill="none">
+    <line x1="360" y1="155" x2="440" y2="155"/>
+    <line x1="600" y1="230" x2="600" y2="270"/>
+    <line x1="760" y1="355" x2="840" y2="309"/>
+    <line x1="760" y1="355" x2="840" y2="401"/>
+    <line x1="1000" y1="230" x2="1000" y2="270"/>
+  </g>
+  <text x="40" y="484" fill="#8b95b0" font-size="12">Remove-the-graph test: unset FALKORDB_URL + disable /api/graph → provenance, recall, blast radius break. The graph is load-bearing.</text>
+</svg>

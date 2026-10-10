@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" font-family="JetBrains Mono, monospace">
+  <rect width="1200" height="420" rx="24" fill="#05060a"/>
+  <text x="40" y="48" fill="#e2e8ff" font-size="20" font-weight="bold">AGENT FLOW · “Investigate inc_2041” (every step shows its Cypher)</text>
+  <g font-size="12">
+    <!-- scout -->
+    <rect x="40" y="80" width="250" height="260" rx="16" fill="#0b0e17" stroke="#38e1ff" stroke-width="2"/>
+    <text x="60" y="112" fill="#38e1ff" font-weight="bold" font-size="14">1 · SCOUT</text>
+    <text x="60" y="136" fill="#e2e8ff">anchors Incident +</text>
+    <text x="60" y="154" fill="#e2e8ff">Service from query</text>
+    <text x="60" y="186" fill="#8b95b0" font-size="11">graph.traverse</text>
+    <text x="60" y="230" fill="#38e1ff" font-size="11">MATCH (n) WHERE</text>
+    <text x="60" y="246" fill="#38e1ff" font-size="11">n.name CONTAINS $q</text>
+    <text x="60" y="300" fill="#b6ff5c" font-size="11">path: s_payments</text>
+    <!-- archivist -->
+    <rect x="330" y="80" width="250" height="260" rx="16" fill="#0b0e17" stroke="#ffb224" stroke-width="2"/>
+    <text x="350" y="112" fill="#ffb224" font-weight="bold" font-size="14">2 · ARCHIVIST</text>
+    <text x="350" y="136" fill="#e2e8ff">recalls 2 prior</text>
+    <text x="350" y="154" fill="#e2e8ff">episodes (ep_92, ep_93)</text>
+    <text x="350" y="186" fill="#8b95b0" font-size="11">memory.recall</text>
+    <text x="350" y="230" fill="#38e1ff" font-size="11">MATCH (m:Memory)</text>
+    <text x="350" y="246" fill="#38e1ff" font-size="11">WHERE m.text…$q</text>
+    <text x="350" y="300" fill="#b6ff5c" font-size="11">path: ep_92 → ep_93</text>
+    <!-- guardian -->
+    <rect x="620" y="80" width="250" height="260" rx="16" fill="#0b0e17" stroke="#ff5c8a" stroke-width="2"/>
+    <text x="640" y="112" fill="#ff5c8a" font-weight="bold" font-size="14">3 · GUARDIAN</text>
+    <text x="640" y="136" fill="#e2e8ff">root-cause chain +</text>
+    <text x="640" y="154" fill="#e2e8ff">blast radius, acts</text>
+    <text x="640" y="186" fill="#8b95b0" font-size="11">graph.blastRadius</text>
+    <text x="640" y="230" fill="#38e1ff" font-size="11">…AFFECTS→(-←DEPLOYED</text>
+    <text x="640" y="246" fill="#38e1ff" font-size="11">_TO—)…→PR→Person</text>
+    <text x="640" y="300" fill="#b6ff5c" font-size="11">freeze · rollback · page</text>
+    <!-- oracle -->
+    <rect x="910" y="80" width="250" height="260" rx="16" fill="#0b0e17" stroke="#b6ff5c" stroke-width="2"/>
+    <text x="930" y="112" fill="#b6ff5c" font-weight="bold" font-size="14">4 · ORACLE</text>
+    <text x="930" y="136" fill="#e2e8ff">ranks experts,</text>
+    <text x="930" y="154" fill="#e2e8ff">explains + cites</text>
+    <text x="930" y="186" fill="#8b95b0" font-size="11">graph.whoKnows</text>
+    <text x="930" y="230" fill="#38e1ff" font-size="11">(p:Person)-[:WORKED</text>
+    <text x="930" y="246" fill="#38e1ff" font-size="11">_ON]→(s:Service)</text>
+    <text x="930" y="300" fill="#b6ff5c" font-size="11">Marcus Webb + Ava Chen</text>
+  </g>
+  <g stroke="#7c5cff" stroke-width="2" fill="none">
+    <line x1="290" y1="210" x2="330" y2="210"/><line x1="580" y1="210" x2="620" y2="210"/><line x1="870" y1="210" x2="910" y2="210"/>
+  </g>
+  <text x="40" y="380" fill="#8b95b0" font-size="12">Outcome written back as Episode + Task nodes → next session recalls it. Shared blackboard = coordination without message passing.</text>
+</svg>

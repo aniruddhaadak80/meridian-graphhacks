@@ -15,6 +15,36 @@ Agents are only as good as their context. Meridian gives a **4-agent crew one Fa
 
 ---
 
+## 📸 Screenshots (real, from the live deploy)
+
+| Landing | Console — incident investigation |
+|---|---|
+| ![Meridian landing](public/screenshots/landing.png) | ![Meridian console](public/screenshots/console.png) |
+
+Regenerate any time: `node scripts/shots.mjs` (Playwright, headless Chromium).
+
+## 🗺️ Diagrams
+
+![Architecture](public/diagrams/architecture.svg)
+![Data model](public/diagrams/datamodel.svg)
+![Agent flow](public/diagrams/agent-flow.svg)
+
+```mermaid
+flowchart LR
+    U[You ask] --> C[Console /api/chat]
+    C --> S[Scout: anchor nodes]
+    S --> A[Archivist: recall memory]
+    A --> G[Guardian: root-cause + blast radius + act]
+    G --> O[Oracle: experts + explanation + citations]
+    S -.->|traversals| F[(FalkorDB meridian_tenant)]
+    A -.->|traversals| F
+    G -.->|traversals| F
+    O -.->|traversals| F
+    G -->|Episode + Task nodes| F
+```
+
+---
+
 ## ⚡ 60-second demo (judge script)
 
 1. Open `/console` → click **“Investigate inc_2041”**.
@@ -164,7 +194,7 @@ app/page.tsx            landing (hero + tracks + judge script)
 app/console/page.tsx    command center (chat, timeline, graph, cypher, memory)
 app/api/{health,seed,graph,chat,investigate,memory,mcp}/route.ts
 lib/graph/store.ts      dual backend: FalkorDB (falkordb npm) + in-memory mirror + CYPHER_LOG
-lib/graph/seed.ts       Northwind Robotics dataset (~180 nodes/~320 edges)
+lib/graph/seed.ts       Northwind Robotics dataset (87 nodes/117 edges per tenant)
 lib/graph/algorithms.ts BFS/shortestPath/blastRadius/PageRank/whoKnows/rootCause + Cypher
 lib/memory/memory.ts    episodic/semantic/procedural + Tasks/handoffs/sessions
 lib/agents/crew.ts      Scout/Archivist/Guardian/Oracle + MCP_TOOLS + runCrew()

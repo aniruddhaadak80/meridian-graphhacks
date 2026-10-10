@@ -72,8 +72,8 @@ export default function Home() {
         {/* live stats strip */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl mx-auto mt-12">
           {[
-            ["~180", "nodes seeded"],
-            ["~320", "edges traversed"],
+            ["87", "nodes seeded"],
+            ["117", "edges traversed"],
             ["4", "agents, 1 blackboard"],
             ["<100ms", "traversal (FalkorDB)"],
           ].map(([a, b]) => (

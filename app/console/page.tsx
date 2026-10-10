@@ -14,6 +14,25 @@ const PRESETS = [
   "What did we learn from the route-optimizer incident?",
 ];
 
+// Minimal markdown renderer for agent answers (headings, bold, inline code, bullets).
+// Keeps the bundle dependency-free; answers are agent-generated, so escape HTML first.
+function renderMiniMd(src: string): string {
+  const esc = src.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return esc
+    .split("\n")
+    .map((line) => {
+      if (line.startsWith("## ")) return `<h2>${line.slice(3)}</h2>`;
+      if (line.startsWith("##")) return `<h2>${line.replace(/^#+/, "").trim()}</h2>`;
+      let h = line
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>");
+      if (/^\s*[-*]\s+/.test(h)) return `<li>${h.replace(/^\s*[-*]\s+/, "")}</li>`;
+      if (h.trim() === "") return "<br/>";
+      return `<p>${h}</p>`;
+    })
+    .join("");
+}
+
 export default function Console() {
   const [tenant, setTenant] = useState("acme-robotics");
   const [sessionId] = useState("console");
@@ -114,7 +133,7 @@ export default function Console() {
                 <div className="flex gap-1.5">{["scout", "archivist", "guardian", "oracle"].map((a) => <span key={a} className="mono text-[10px] px-2 py-1 rounded-full bg-white/5 border border-line">{a}</span>)}</div>
               </div>
               {!res ? <div className="text-slate-400 mt-4">Ask anything — try “investigate inc_2041”.</div> : (
-                <div className="markdown-body mt-3 whitespace-pre-wrap">{res.answer}</div>
+                <div className="markdown-body mt-3" dangerouslySetInnerHTML={{ __html: renderMiniMd(res.answer) }} />
               )}
               {!!res?.actions?.length && (
                 <div className="grid sm:grid-cols-3 gap-2 mt-4">

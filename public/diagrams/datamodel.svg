@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" font-family="JetBrains Mono, monospace">
+  <rect width="1200" height="560" rx="24" fill="#05060a"/>
+  <text x="40" y="48" fill="#b6ff5c" font-size="20" font-weight="bold">DATA MODEL · Northwind Robotics (synthetic, 87 nodes / 117 edges)</text>
+  <!-- left: causal chain -->
+  <g>
+    <text x="40" y="92" fill="#ff5c8a" font-size="14" font-weight="bold">CAUSAL CHAIN (Track 01 hero path)</text>
+    <rect x="40" y="104" width="1120" height="120" rx="16" fill="#0b0e17" stroke="#ff5c8a" stroke-width="1.5"/>
+    <g font-size="13" text-anchor="middle">
+      <rect x="70" y="134" width="130" height="60" rx="12" fill="#ff5c8a22" stroke="#ff5c8a"/><text x="135" y="158" fill="#ff5c8a" font-weight="bold">Incident</text><text x="135" y="178" fill="#8b95b0" font-size="11">inc_2041</text>
+      <text x="222" y="170" fill="#8b95b0">—AFFECTS→</text>
+      <rect x="320" y="134" width="130" height="60" rx="12" fill="#b6ff5c22" stroke="#b6ff5c"/><text x="385" y="158" fill="#b6ff5c" font-weight="bold">Service</text><text x="385" y="178" fill="#8b95b0" font-size="11">payments-api</text>
+      <text x="472" y="170" fill="#8b95b0">←DEPLOYED_TO—</text>
+      <rect x="600" y="134" width="130" height="60" rx="12" fill="#ff8a5c22" stroke="#ff8a5c"/><text x="665" y="158" fill="#ff8a5c" font-weight="bold">Deploy</text><text x="665" y="178" fill="#8b95b0" font-size="11">dep_pr_882</text>
+      <text x="752" y="170" fill="#8b95b0">←DEPLOYED_AS—</text>
+      <rect x="850" y="134" width="90" height="60" rx="12" fill="#ffb22422" stroke="#ffb224"/><text x="895" y="158" fill="#ffb224" font-weight="bold">PR</text><text x="895" y="178" fill="#8b95b0" font-size="11">pr_882</text>
+      <text x="962" y="170" fill="#8b95b0">←AUTHORED—</text>
+      <rect x="1030" y="134" width="110" height="60" rx="12" fill="#38e1ff22" stroke="#38e1ff"/><text x="1085" y="158" fill="#38e1ff" font-weight="bold">Person</text><text x="1085" y="178" fill="#8b95b0" font-size="11">Priya Nair</text>
+    </g>
+  </g>
+  <!-- middle: deps + owners -->
+  <g>
+    <text x="40" y="262" fill="#38e1ff" font-size="14" font-weight="bold">DEPENDENCIES + OWNERSHIP (blast radius · experts)</text>
+    <rect x="40" y="274" width="560" height="120" rx="16" fill="#0b0e17" stroke="#38e1ff" stroke-width="1.5"/>
+    <text x="60" y="306" fill="#e2e8ff" font-size="12">(Service)-[:DEPENDS_ON*1..4]→(Service)</text>
+    <text x="60" y="330" fill="#e2e8ff" font-size="12">(Team)-[:OWNS]→(Service) · (Person)-[:WORKED_ON]→(Service)</text>
+    <text x="60" y="354" fill="#e2e8ff" font-size="12">(Person)-[:KNOWS]→(Skill) · (PR)-[:CHANGES]→(Service)</text>
+    <text x="60" y="378" fill="#8b95b0" font-size="11">whoKnows = WORKED_ON×3 + PR-touch×2 + skills</text>
+  </g>
+  <!-- middle right: memory -->
+  <g>
+    <text x="640" y="262" fill="#ffb224" font-size="14" font-weight="bold">MEMORY (Track 02 · per-tenant nodes)</text>
+    <rect x="640" y="274" width="520" height="120" rx="16" fill="#0b0e17" stroke="#ffb224" stroke-width="1.5"/>
+    <text x="660" y="306" fill="#e2e8ff" font-size="12">(Episode|Fact):Memory · (Runbook)-[:HAS_STEP]→(Step)</text>
+    <text x="660" y="330" fill="#e2e8ff" font-size="12">(Task)-[:ASSIGNED_TO|CLAIMED]→ handoffs</text>
+    <text x="660" y="354" fill="#e2e8ff" font-size="12">(Episode)-[:IN_SESSION]→(Session sess_console)</text>
+    <text x="660" y="378" fill="#8b95b0" font-size="11">recall = traversal · sessions survive reload</text>
+  </g>
+  <!-- bottom: company brain -->
+  <g>
+    <text x="40" y="432" fill="#c9b8ff" font-size="14" font-weight="bold">COMPANY BRAIN (Track 03 · decisions + docs with sources)</text>
+    <rect x="40" y="444" width="1120" height="72" rx="16" fill="#0b0e17" stroke="#c9b8ff" stroke-width="1.5"/>
+    <text x="60" y="474" fill="#e2e8ff" font-size="12">(Person)-[:MADE]→(Decision)-[:CONSTRAINS]→(Service) · (Doc)-[:DESCRIBES]→(Service) · (Ticket)-[:ABOUT]→(Service)-[:LINKED_TO]→(Incident)</text>
+    <text x="60" y="498" fill="#8b95b0" font-size="11">freshness props on Docs · rationale on Decisions · every answer cites node ids</text>
+  </g>
+</svg>
