@@ -3,7 +3,7 @@
 ![CI](https://github.com/aniruddhaadak80/meridian-graphhacks/actions/workflows/ci/badge.svg)
 ![Tracks](https://img.shields.io/badge/tracks-all%203-7c5cff)
 ![FalkorDB](https://img.shields.io/badge/graph-FalkorDB-b6ff5c)
-![Eval](https://img.shields.io/badge/eval-9%2F9-brightgreen)
+![Eval](https://img.shields.io/badge/eval-13%2F13-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-slate)
 
 > **Graph Hacks: Context for AI Agents · Oct 15–18 2026 · Powered by FalkorDB**
@@ -22,6 +22,16 @@ Agents are only as good as their context. Meridian gives a **4-agent crew one Fa
 | ![Meridian landing](public/screenshots/landing.png) | ![Meridian console](public/screenshots/console.png) |
 
 Regenerate any time: `node scripts/shots.mjs` (Playwright, headless Chromium).
+
+## 🧾 Judge links (one click each)
+
+| What | URL |
+|---|---|
+| Live console | `https://meridian-graphhacks.vercel.app/console` |
+| Graph proof bundle | `https://meridian-graphhacks.vercel.app/api/proof` |
+| Health + Cypher log | `https://meridian-graphhacks.vercel.app/api/health?tenant=acme-robotics` |
+| MCP tools | `https://meridian-graphhacks.vercel.app/api/mcp` |
+| Incident API | `https://meridian-graphhacks.vercel.app/api/investigate` (POST `{incidentId:"inc_2041"}`) |
 
 ## 🗺️ Diagrams
 
@@ -183,7 +193,7 @@ Env: `FALKORDB_URL` (optional, enables live mode), `TENANT_DEFAULT=acme-robotics
 | PageRank top | auth-service |
 | whoKnows payments-api | Marcus Webb, Ava Chen |
 | Ticket tk_5101 → inc_2041 path | 1 hop |
-| Total | 9/9 pass, chat p50 <100ms (mirror), live FalkorDB same queries via RESP |
+| Total | 13/13 pass, chat p50 <100ms (mirror), live FalkorDB same queries via RESP |
 
 ---
 
@@ -237,4 +247,4 @@ All data synthetic (“Northwind Robotics”). No private/paywalled data. MIT. B
 
 **Team:** solo (Aniruddha Adak) + AI coding assistant (OpenCode + Muse Spark — disclosed per Rules; all graph model, Cypher, architecture and decisions understood and verified by author).
 
-**AI disclosure:** scaffolding, UI copy and boilerplate drafted with AI assistance; every Cypher query, algorithm, seed edge and agent route hand-checked via `npm run eval` (9/9) + `tsc --noEmit` + `npm run build`. No blind-generated code submitted.
+**AI disclosure:** scaffolding, UI copy and boilerplate drafted with AI assistance; every Cypher query, algorithm, seed edge and agent route hand-checked via `npm run eval` (13/13) + `tsc --noEmit` + `npm run build`. No blind-generated code submitted.

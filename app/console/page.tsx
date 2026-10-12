@@ -211,7 +211,7 @@ export default function Console() {
 
         {/* MCP strip */}
         <div className="glass rounded-3xl p-6 mt-5">
-          <div className="mono text-xs text-cyanx">MCP SERVER · agents pick tools dynamically · GET/POST /api/mcp</div>
+          <div className="mono text-xs text-cyanx">MCP SERVER · agents pick tools dynamically · GET/POST /api/mcp · <a href="/api/proof" className="underline">graph proof bundle →</a></div>
           <div className="grid sm:grid-cols-4 gap-2 mt-3">
             {["graph.traverse", "graph.shortestPath", "graph.blastRadius", "graph.pageRank", "graph.whoKnows", "memory.recall", "memory.handoff", "brain.decisionLineage"].map((t) => (
               <code key={t} className="mono text-[11px] bg-black/50 border border-line rounded-xl px-3 py-2.5">{t}</code>

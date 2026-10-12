@@ -1,8 +1,10 @@
 // Meridian eval harness — proves the graph does load-bearing work.
 // Run: npm run eval. Fails (exit 1) if any check fails.
 import { seedTenant } from "../lib/graph/seed";
-import { runCrew } from "../lib/agents/crew";
+import { runCrew, MCP_TOOLS } from "../lib/agents/crew";
 import { blastRadius, pageRank, shortestPath, whoKnows } from "../lib/graph/algorithms";
+import { createTask, claimTask, openTasks } from "../lib/memory/memory";
+import { tenantGraph } from "../lib/graph/store";
 
 async function main() {
   const tenant = "eval-tenant";
@@ -35,6 +37,17 @@ async function main() {
   check("T3 ticket→incident path exists", !!sp, sp ? `${sp.hops} hops` : "no path");
   const r3: any = await runCrew(tenant, "who knows route-optimizer?");
   check("T3 brain cites experts", /Priya|Kenji|route-optimizer/i.test(r3.answer), "");
+
+  // T4: MCP surface + tenant isolation + handoff roundtrip
+  check("T4 MCP exposes 8 tools", MCP_TOOLS.length === 8, MCP_TOOLS.map((t) => t.name).join(","));
+  await seedTenant("globex");
+  const isoOther = ![...tenantGraph(tenant).nodes.keys()].some((k) => k.startsWith("ep_globex"));
+  const isoSelf = tenantGraph("globex").nodes.has("ep_globex_1");
+  check("T4 tenant isolation (unique nodes)", isoOther && isoSelf, "globex episode isolated");
+  const task = await createTask(tenant, "Eval handoff", "guardian→oracle probe", "guardian", "oracle");
+  const claimed = await claimTask(tenant, (task as any).id, "oracle");
+  check("T4 handoff create+claim", !!claimed && (claimed.props as any).status === "in_progress", (task as any).id);
+  check("T4 openTasks readable", Array.isArray(openTasks(tenant)), `${openTasks(tenant).length} open`);
 
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

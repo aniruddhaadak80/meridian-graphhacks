@@ -101,15 +101,15 @@ export function whoKnows(tenant: TenantId, serviceNameOrId: string) {
     (n) => n.labels.includes("Service") && (n.id === serviceNameOrId || (n.props as any).name === serviceNameOrId)
   );
   if (!svc) return { service: null, experts: [] as any[] };
-  // 1-hop WORKED_ON + KNOWS skills + authored PRs (multi-hop signal)
+  // 1-hop WORKED_ON + KNOWS skills + authored PRs (multi-hop signal).
+  // A person is only an "expert" if the graph actually links them to this
+  // service — no edges means no evidence, so we return nobody rather than
+  // guessing from a record's mere existence.
   const experts = [...g.nodes.values()]
     .filter((n) => n.labels.includes("Person"))
     .map((p) => {
       const worked = inEdges(tenant, svc.id, "WORKED_ON").some((e) => e.from === p.id) ? 3 : 0;
-      const authored = [...g.edges.values()].filter(
-        (e) => e.type === "AUTHORED" && e.from === p.id && g.nodes.get((g.edges.get(e.id) as any)?.to ?? (e as any).to)
-      );
-      // count PRs touching this service by this author
+      // PRs this person authored that CHANGES this service (2-hop: Person→PR→Service)
       let prTouch = 0;
       for (const e of g.edges.values()) {
         if (e.type !== "AUTHORED" || e.from !== p.id) continue;
@@ -118,11 +118,20 @@ export function whoKnows(tenant: TenantId, serviceNameOrId: string) {
         const touches = [...g.edges.values()].some((x) => x.type === "CHANGES" && x.from === pr.id && x.to === svc.id);
         if (touches) prTouch += 2;
       }
-      const skills = outEdges(tenant, p.id, "KNOWS").length;
-      return { person: p, score: worked + prTouch + Math.min(2, skills), signals: { worked: worked > 0, prTouch, skills } };
+      // skills relevant to this service's domain only (1-hop: Person→Skill)
+      const svcName = String((svc.props as any).name ?? svc.id).toLowerCase();
+      const skills = outEdges(tenant, p.id, "KNOWS").filter((e) => {
+        const skill = String((g.nodes.get(e.to)?.props as any)?.name ?? "").toLowerCase();
+        return skill.includes(svcName.split("-")[0]) || skill === svcName;
+      }).length;
+
+      const score = worked + prTouch + Math.min(2, skills);
+      return { person: p, score, signals: { worked: worked > 0, prTouch, skills } };
     })
-    .sort((a, b) => b.score - a.score)
+    .filter((e) => e.score > 0) // graph evidence required
+    .sort((a, b) => b.score - a.score || String(a.person.props?.name).localeCompare(String(b.person.props?.name)))
     .slice(0, 5);
+
   return { service: svc, experts, cypher: CYPHER_SNIPPETS.whoKnows((svc.props as any).name ?? svc.id) };
 }
 
