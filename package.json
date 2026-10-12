@@ -8,9 +8,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --incremental false",
     "seed": "tsx scripts/seed.ts",
     "eval": "tsx scripts/eval.ts",
+    "test": "tsx --test scripts/test.ts",
+    "ablation": "tsx scripts/ablation.ts",
+    "cypher": "tsx scripts/dump-cypher.ts",
+    "verify": "npm run typecheck && npm run test && npm run eval && npm run ablation",
     "shots": "node scripts/shots.mjs"
   },
   "dependencies": {

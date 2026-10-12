@@ -11,6 +11,8 @@ import { rememberEpisode, recall, createTask, claimTask, completeTask, openTasks
 import { exportCypher, PRODUCT_CYPHER } from "../lib/graph/cypherExport";
 
 const T = "test-tenant";
+
+async function main() {
 await seedTenant(T);
 
 // ─────────────────────────── seed / store ───────────────────────────
@@ -96,12 +98,17 @@ test("whoKnows returns empty for an unknown service", () => {
   assert.deepEqual(wk.experts, []);
 });
 
-test("rootCauseChain ranks correlated deploys first", () => {
+test("rootCauseChain ranks evidence above recency", () => {
   const chain = rootCauseChain(T, "inc_2041");
   assert.ok(chain);
   assert.equal(chain.affects[0].id, "s_payments");
   assert.ok(chain.chains.length >= 3, "should include cross-service correlated deploys");
-  assert.equal(chain.chains[0].causedBy, true, "top suspect must be a correlated link");
+  // inc_2041 is CORRELATED_WITH dep_pr_882 / dep_pr_884 — those must outrank
+  // the merely-recent deploy to payments itself.
+  assert.equal(chain.chains[0].linkType, "CORRELATED_WITH", "top suspect must be an evidence-linked deploy");
+  assert.ok(chain.chains[0].linkReason, "correlated suspects must carry their stated reason");
+  const ranks = chain.chains.map((c: any) => (c.causedBy ? 3 : c.linkType === "CORRELATED_WITH" ? 2 : c.suspect ? 1 : 0));
+  assert.deepEqual(ranks, [...ranks].sort((a, b) => b - a), "chains must be sorted by evidence strength");
   assert.match(chain.cypher, /Incident/);
 });
 
@@ -133,11 +140,19 @@ test("task handoff: create → claim → complete", async () => {
 });
 
 test("tenants are isolated — writes never leak", async () => {
-  const A = "iso-a", B = "iso-b";
+  const A = "iso-a2", B = "iso-b2";
   await seedTenant(A);
   await seedTenant(B);
-  await rememberEpisode(A, "SECRET-ALPHA-MARKER", undefined, "s1");
-  assert.equal(recall(B, "SECRET-ALPHA-MARKER", 5).length, 0, "tenant B must not see A's memory");
+  const marker = "SECRET-ALPHA-MARKER-9931";
+  await rememberEpisode(A, marker, undefined, "s1");
+
+  // B's recall must never surface A's episode
+  const hitsB = recall(B, marker, 10);
+  assert.equal(hitsB.length, 0, `tenant B must not see A's memory (got ${hitsB.length})`);
+
+  // and the node itself must not exist in B's graph
+  const markerNode = [...tenantGraph(B).nodes.values()].find((n) => JSON.stringify(n.props).includes(marker));
+  assert.equal(markerNode, undefined, "episode node must not exist in tenant B");
   assert.equal(tenantGraph(B).nodes.has("s_auth"), true, "B still seeded independently");
 });
 
@@ -145,8 +160,8 @@ test("tenants are isolated — writes never leak", async () => {
 test("crew runs all four agents with Cypher-backed steps", async () => {
   const r = await runCrew(T, "investigate inc_2041 — payments p99 spike");
   const agents = r.steps.map((s) => s.agent);
-  for (const a of ["scout", "archivist", "oracle"]) {
-    assert.ok(agents.includes(a), `missing agent ${a}`);
+  for (const a of ["scout", "archivist", "oracle"] as const) {
+    assert.ok((agents as string[]).includes(a), `missing agent ${a}`);
   }
   assert.ok(r.answer.length > 100);
   assert.ok(r.actions.length >= 2, "incident triage must propose actions");
@@ -169,7 +184,7 @@ test("company-brain answers cite sources, not guesses", async () => {
 test("tenant switch changes the answer surface (no cross-tenant leak)", async () => {
   const a = await runCrew("iso-a", "investigate inc_2041");
   const b = await runCrew("iso-b", "investigate inc_2041");
-  assert.equal(a.tenant ?? T, T); // sanity
+  assert.ok(typeof a.answer === "string" && a.answer.length > 0);
   assert.ok(typeof b.answer === "string" && b.answer.length > 0);
 });
 
@@ -208,3 +223,6 @@ test("product cypher sheet covers every track", () => {
     assert.ok(q.usedBy.length > 0);
   }
 });
+}
+
+main();

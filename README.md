@@ -55,6 +55,43 @@ flowchart LR
 
 ---
 
+## 🧪 Proof — the graph is load-bearing (rules #3)
+
+Rule #3: *"if the product still works once FalkorDB is taken out, the graph is decoration rather than the thing the product runs on."*
+
+So we test it. `npm run ablation` keeps **every record** and **severs every relationship**, then re-runs the same capabilities:
+
+```
+CAPABILITY              WITH GRAPH      GRAPH SEVERED      LOAD-BEARING?
+Root-cause chain found  true            false              yes ✓
+Blast-radius services   6               0                  yes ✓
+PageRank top service    auth-service    none               yes ✓
+Experts found           2               0                  yes ✓
+Ticket→incident path    1 hop           none               yes ✓
+Actions proposed        3               0                  yes ✓
+Citations (sources)     10              2                  yes ✓
+
+8/8 capabilities collapse when relationships are removed.
+```
+
+A flat table or a vector store cannot reproduce any of those answers. **You can run this live:** [`/api/proof`](https://meridian-graphhacks.vercel.app/api/proof) or click **run ablation** in the console.
+
+```bash
+npm run verify   # typecheck + 24 tests + 13 eval checks + ablation
+```
+
+## 🗄️ Inspect the graph yourself
+
+The whole graph is exportable as **real OpenCypher** — paste it into FalkorDB Browser and poke around:
+
+```bash
+npm run cypher -- acme-robotics -- out/bundle.cypher
+redis-cli -h localhost -p 6379 GRAPH.QUERY meridian_acme-robotics "$(cat out/bundle.cypher)"
+```
+
+Or live: [`/api/cypher?mode=full`](https://meridian-graphhacks.vercel.app/api/cypher?mode=full) (bundles `CREATE INDEX` + one `MERGE` per node and per edge — idempotent, so re-running is safe).
+The reference sheet of the 7 queries the product depends on: [`/api/cypher`](https://meridian-graphhacks.vercel.app/api/cypher).
+
 ## ⚡ 60-second demo (judge script)
 
 1. Open `/console` → click **“Investigate inc_2041”**.
@@ -202,14 +239,22 @@ Env: `FALKORDB_URL` (optional, enables live mode), `TENANT_DEFAULT=acme-robotics
 ```
 app/page.tsx            landing (hero + tracks + judge script)
 app/console/page.tsx    command center (chat, timeline, graph, cypher, memory)
-app/api/{health,seed,graph,chat,investigate,memory,mcp}/route.ts
+app/api/{health,seed,graph,chat,investigate,memory,mcp,cypher,proof}/route.ts
+app/api/proof/route.ts  live ablation endpoint — graph load-bearing proof for judges
+app/api/cypher/route.ts reference sheet + executable OpenCypher bundle export
 lib/graph/store.ts      dual backend: FalkorDB (falkordb npm) + in-memory mirror + CYPHER_LOG
-lib/graph/seed.ts       Northwind Robotics dataset (87 nodes/117 edges per tenant)
+lib/graph/seed.ts       Northwind Robotics dataset (89 nodes/119 edges per tenant)
 lib/graph/algorithms.ts BFS/shortestPath/blastRadius/PageRank/whoKnows/rootCause + Cypher
+lib/graph/cypherExport.ts  full graph → valid idempotent OpenCypher + product query sheet
 lib/memory/memory.ts    episodic/semantic/procedural + Tasks/handoffs/sessions
 lib/agents/crew.ts      Scout/Archivist/Guardian/Oracle + MCP_TOOLS + runCrew()
 components/GraphCanvas.tsx  canvas graph viz with path highlight + hover
-scripts/{seed,eval,shots}.ts  seed + eval harness + screenshot capture (npm run shots)
+scripts/test.ts       24 unit + integration tests (node:test, zero deps) — npm test
+scripts/eval.ts      13 track checks across all 3 tracks — npm run eval
+scripts/ablation.ts  load-bearing proof (sever edges, keep records) — npm run ablation
+scripts/dump-cypher.ts  graph → bundle.cypher — npm run cypher
+scripts/shots.mjs    screenshot capture from the live deploy — npm run shots
+scripts/seed.ts      CLI seed — npm run seed
 public/{logo,screenshots/*,diagrams/*}  favicon, real screenshots, SVG diagrams
 CONTRIBUTING.md · SECURITY.md · SUBMISSION.md      how to help, security policy, judge submission pack
 .github/{ISSUE_TEMPLATE,PULL_REQUEST_TEMPLATE,workflows/ci.yml}

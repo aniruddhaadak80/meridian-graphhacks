@@ -1,13 +1,41 @@
 name: ci
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
 jobs:
-  build:
+  verify:
+    name: typecheck · test · eval · ablation · build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      - run: npm ci || npm install
-      - run: npx tsc --noEmit
-      - run: npm run build
-      - run: npm run eval
+        with:
+          node-version: 22
+
+      - name: Install
+        run: npm ci || npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit + integration tests
+        run: npm test
+
+      - name: Track eval (all 3 tracks)
+        run: npm run eval
+
+      - name: Ablation — graph is load-bearing
+        run: npm run ablation
+
+      - name: Production build
+        run: npm run build
+
+      - name: Cypher bundle is valid OpenCypher
+        run: |
+          npm run cypher -- ci-check -- out/bundle.cypher
+          grep -c "^MERGE (" out/bundle.cypher
+          grep -c "^MATCH (a {id:" out/bundle.cypher

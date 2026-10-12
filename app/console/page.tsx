@@ -45,6 +45,8 @@ export default function Console() {
   const [cypherOut, setCypherOut] = useState<any>(null);
   const [memQ, setMemQ] = useState("payments deploy");
   const [mem, setMem] = useState<any>(null);
+  const [proof, setProof] = useState<any>(null);
+  const [proofLoading, setProofLoading] = useState(false);
 
   const highlight = useMemo(() => {
     const s = new Set<string>();
@@ -91,6 +93,13 @@ export default function Console() {
   async function loadMem() {
     const r = await fetch(`/api/memory?tenant=${tenant}&q=${encodeURIComponent(memQ)}`).then((x) => x.json());
     setMem(r);
+  }
+  async function loadProof() {
+    setProofLoading(true);
+    try {
+      const r = await fetch(`/api/proof?tenant=${tenant}`).then((x) => x.json());
+      setProof(r);
+    } finally { setProofLoading(false); }
   }
 
   return (
@@ -207,6 +216,42 @@ export default function Console() {
               ) : <div className="mono text-[11px] text-slate-500 mt-2">Click recall — memory.reads are graph traversals.</div>}
             </div>
           </div>
+        </div>
+
+        {/* PROOF — graph is load-bearing */}
+        <div className="glass rounded-3xl p-6 mt-5">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div className="mono text-xs text-limex">PROOF · is the graph load-bearing? (rules #3)</div>
+            <button onClick={loadProof} disabled={proofLoading} className="mono text-[11px] px-4 py-2 rounded-xl bg-limex text-black font-bold disabled:opacity-50">
+              {proofLoading ? "running ablation…" : "run ablation →"}
+            </button>
+          </div>
+          {!proof && <p className="text-sm text-slate-400">Severe the relationships, keep every record, and see which answers survive. Anything that changes cannot come from a flat table.</p>}
+          {proof && (
+            <>
+              <div className="flex flex-wrap items-center gap-3 mb-3">
+                <span className={`mono text-xs px-3 py-1.5 rounded-full font-bold ${proof.verdict?.startsWith("GRAPH") ? "bg-limex text-black" : "bg-roseX/20 text-roseX"}`}>{proof.verdict}</span>
+                <span className="mono text-xs text-slate-300">{proof.loadBearing}</span>
+              </div>
+              <div className="overflow-x-auto scroll-thin">
+                <table className="w-full mono text-[11px]">
+                  <thead><tr className="text-slate-400 border-b border-line">
+                    <th className="text-left py-2 pr-3">capability</th><th className="text-left py-2 pr-3">with graph</th><th className="text-left py-2 pr-3">graph severed</th><th className="text-left py-2">load-bearing</th>
+                  </tr></thead>
+                  <tbody>
+                    {proof.capabilities?.map((r: any) => (
+                      <tr key={r.capability} className="border-b border-line/40">
+                        <td className="py-1.5 pr-3 text-slate-200">{r.capability}</td>
+                        <td className="py-1.5 pr-3 text-limex">{String(r.withGraph)}</td>
+                        <td className="py-1.5 pr-3 text-roseX">{String(r.graphSevered)}</td>
+                        <td className="py-1.5">{r.loadBearing ? "✓ yes" : "✗ no"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
 
         {/* MCP strip */}

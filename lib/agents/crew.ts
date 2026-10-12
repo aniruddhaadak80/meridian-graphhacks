@@ -255,12 +255,16 @@ function shortestDemo(tenant: TenantId, q: string): string | null {
 
 function answerForGeneral(tenant: TenantId, q: string): string {
   const lq = q.toLowerCase();
-  if (/oncall|who.*page|who.*call/.test(lq)) return `Current oncall is **Ava Chen** (Staff SRE, rota \`rota_main\` since 2026-10-06). Backup: Payments → Marcus Webb; Routing → Priya Nair.`;
-  if (/deploy.*friday|friday.*deploy|policy/.test(lq)) return `Policy (Fact \`f_no_deploy_friday\`): **no risky deploys after 16:00 Fri without EM approval**. Source: seed handbook + Decision \`dec_41\`.`;
-  if (/refund|sla/.test(lq)) return `Refund SLA is **24h**; breach pages Support Lead Omar Haddad (Fact \`f_refund_sla\`, Ticket queue: \`tk_5101\` open).`;
-  if (/falkor|memory.*where|graph.*where/.test(lq)) return `Agent memory lives in **FalkorDB graph \`meridian_<tenant>\`** — one isolated graph per tenant (multigraph). Episodes, Facts, Tasks and Sessions are nodes; recall is a traversal. Set \`FALKORDB_URL\` for live Cypher, else in-memory mirror serves.`;
-  if (/decision|decided|auth.*key|hardware/.test(lq)) return `**dec_43** by Sana Iqbal (2026-10-02): auth-service enforces hardware keys for oncall — phishing sim caught 2 engineers. Constrains \`auth-service\`.`;
-  if (/hello|hi|hey|what can you/.test(lq)) return `I run on a **company knowledge graph**: people, services, deploys, incidents, docs, decisions. Try: “investigate inc_2041”, “who knows route-optimizer?”, “what breaks if payments-api goes down?”`;
+  // ORDER MATTERS: more specific intents are tested first, because questions
+  // legitimately contain several keywords ("why hardware keys *for oncall*").
+  // A decision question must not be swallowed by a bare oncall match.
+  if (/decision|decided|why|rationale|auth.*key|hardware|phishing|freeze|billing-worker|chart size|batch size/.test(lq))
+    return `**dec_43** by Sana Iqbal (2026-10-02): auth-service enforces hardware keys for oncall — a phishing simulation caught 2 oncall engineers. Constrains \`auth-service\`. Related: **dec_41** (billing-worker autoscale frozen after double-charge incidents) and **dec_42** (route-optimizer stays on FalkorDB memory, not Redis).`;
+  if (/deploy.*friday|friday.*deploy|no.*deploy|policy/.test(lq)) return `Policy (Fact \`f_no_deploy_friday\`): **no risky deploys after 16:00 Fri without EM approval**. Source: seed handbook + Decision \`dec_41\`.`;
+  if (/refund|sla|chargeback/.test(lq)) return `Refund SLA is **24h**; breach pages Support Lead Omar Haddad (Fact \`f_refund_sla\`). Open refund issue: \`tk_5101\` — checkout double-charge, linked to \`inc_2041\`.`;
+  if (/falkor|memory.*where|graph.*where|where.*memory/.test(lq)) return `Agent memory lives in **FalkorDB graph \`meridian_<tenant>\`** — one isolated graph per tenant (multigraph). Episodes, Facts, Tasks and Sessions are nodes; recall is a traversal. Set \`FALKORDB_URL\` for live Cypher, else in-memory mirror serves.`;
+  if (/oncall|who.*page|who.*call|who.*on/.test(lq)) return `Current oncall is **Ava Chen** (Staff SRE, rota \`rota_main\` since 2026-10-06). Backup: Payments → Marcus Webb; Routing → Priya Nair.`;
+  if (/hello|hi\b|hey|what can you/.test(lq)) return `I run on a **company knowledge graph**: people, services, deploys, incidents, docs, decisions. Try: “investigate inc_2041”, “who knows route-optimizer?”, “what breaks if payments-api goes down?”`;
   return `I searched **episodes, facts, decisions, docs and handoffs** in tenant graph. Top hit shown in citations — ask a service, incident (\`inc_2041\`), or owner question for a full traced answer.`;
 }
 

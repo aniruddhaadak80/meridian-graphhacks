@@ -72,26 +72,45 @@ export function blastRadius(tenant: TenantId, serviceId: string, depth = 3) {
   };
 }
 
-export function pageRank(tenant: TenantId, iters = 20, damping = 0.85) {
+export function pageRank(tenant: TenantId, iters = 60, damping = 0.85) {
   const g = tenantGraph(tenant);
   const svcIds = [...(g.byLabel.get("Service") ?? [])];
-  const scores = new Map<string, number>(svcIds.map((id) => [id, 1 / Math.max(1, svcIds.length)]));
-  const outCount = new Map<string, number>();
-  for (const id of svcIds) outCount.set(id, outEdges(tenant, id, "DEPENDS_ON").filter((e) => scores.has(e.to)).length || 1);
+  const n = svcIds.length;
+  if (!n) return [];
+  const base = (1 - damping) / n;
+  let scores = new Map<string, number>(svcIds.map((id) => [id, 1 / n]));
+
+  // out-links restricted to Service nodes; dangling mass is redistributed
+  const outLinks = new Map<string, string[]>();
+  for (const id of svcIds) {
+    outLinks.set(id, outEdges(tenant, id, "DEPENDS_ON").map((e) => e.to).filter((t) => scores.has(t)));
+  }
+
   for (let i = 0; i < iters; i++) {
     const next = new Map<string, number>();
+    // dangling (no outgoing) nodes leak their rank, redistributed uniformly
+    const dangling = svcIds.filter((id) => (outLinks.get(id) ?? []).length === 0);
+    const leak = dangling.reduce((s, id) => s + (scores.get(id) ?? 0), 0);
+    const bonus = dangling.length ? (damping * leak) / dangling.length : 0;
+
     for (const id of svcIds) {
       let sum = 0;
       for (const e of inEdges(tenant, id, "DEPENDS_ON")) {
-        if (!scores.has(e.from)) continue;
-        sum += (scores.get(e.from) ?? 0) / (outCount.get(e.from) ?? 1);
+        const from = e.from;
+        if (!scores.has(from)) continue;
+        const outs = outLinks.get(from) ?? [];
+        if (!outs.length) continue;
+        sum += (scores.get(from) ?? 0) / outs.length;
       }
-      next.set(id, (1 - damping) / svcIds.length + damping * sum);
+      next.set(id, base + damping * sum + bonus);
     }
-    for (const [k, v] of next) scores.set(k, v);
+    scores = next;
   }
+
+  // guarantee a proper probability distribution for consumers
+  const total = [...scores.values()].reduce((a, b) => a + b, 0) || 1;
   return svcIds
-    .map((id) => ({ service: g.nodes.get(id)!, score: scores.get(id) ?? 0 }))
+    .map((id) => ({ service: g.nodes.get(id)!, score: (scores.get(id) ?? 0) / total }))
     .sort((a, b) => b.score - a.score);
 }
 
@@ -153,10 +172,17 @@ export function rootCauseChain(tenant: TenantId, incidentId: string) {
       const author = pr ? [...g.edges.values()].find((e) => e.type === "AUTHORED" && e.to === pr.id) : null;
       const authorNode = author ? g.nodes.get(author.from) : null;
       const correlated = outEdges(tenant, incidentId, "CORRELATED_WITH").concat(outEdges(tenant, incidentId, "CAUSED_BY"));
-      const causedBy = [...g.edges.values()].some(
+      // Direct evidence links from the incident to this deploy (or its PR).
+      const linkType = [...g.edges.values()].find(
         (e) => (e.type === "CAUSED_BY" || e.type === "CORRELATED_WITH") && e.from === incidentId && (e.to === deploy.id || (pr && e.to === pr.id))
-      );
-      chains.push({ service: svc, deploy, pr, author: authorNode, correlated, suspect: (deploy.props as any)?.status === "suspect" || (pr?.props as any)?.risk === "high", causedBy });
+      )?.type ?? null;
+      chains.push({
+        service: svc, deploy, pr, author: authorNode, correlated,
+        suspect: (deploy.props as any)?.status === "suspect" || (pr?.props as any)?.risk === "high",
+        causedBy: linkType === "CAUSED_BY",
+        linkType,
+        linkReason: linkType ? ((linkType === "CAUSED_BY" ? null : linkType) as any) : null,
+      });
     }
   }
   // + correlated cross-service suspects (the fan-out story judges love):
@@ -173,11 +199,16 @@ export function rootCauseChain(tenant: TenantId, incidentId: string) {
       service: svcNode ? g.nodes.get(svcNode.to) : affects[0],
       deploy: depNode, pr,
       author: author ? g.nodes.get(author.from) : null,
-      correlated: linked, suspect: true, causedBy: e.type === "CAUSED_BY",
+      correlated: linked, suspect: true, causedBy: e.type === "CAUSED_BY", linkType: e.type,
       linkReason: (e.props as any)?.reason ?? (e.props as any)?.confidence ?? e.type,
     });
   }
-  // Rank: explicit CAUSED_BY/CORRELATED_WITH links first, then suspect deploys
-  chains.sort((a: any, b: any) => Number(b.causedBy ?? false) - Number(a.causedBy ?? false) || Number(b.suspect ?? false) - Number(a.suspect ?? false));
+  // Rank: CAUSED_BY > CORRELATED_WITH (with its stated reason) > suspect deploys > recency
+  const rank = (c: any) => (c.causedBy ? 3 : c.linkType === "CORRELATED_WITH" ? 2 : c.suspect ? 1 : 0);
+  chains.sort((a: any, b: any) => {
+    const d = rank(b) - rank(a);
+    if (d) return d;
+    return String(b.deploy?.props?.at ?? "").localeCompare(String(a.deploy?.props?.at ?? ""));
+  });
   return { incident: inc, affects, chains, cypher: CYPHER_SNIPPETS.rootCause(incidentId) };
 }
