@@ -34,7 +34,11 @@ export function recall(tenant: TenantId, query: string, limit = 8) {
     for (const t of toks) if (hay.includes(t)) score += t.length > 5 ? 3 : 1;
     return { node: m, score };
   });
-  return scored.sort((a, b) => b.score - a.score).slice(0, limit);
+  // No score = no evidence. Returning zero-score nodes would leak unrelated
+  // memories across topics (and look like cross-tenant leaks to callers that
+  // don't filter). Empty result is the honest answer — and the crew renders
+  // it as "none" with a Cypher trail to prove the search happened.
+  return scored.filter((s) => s.score > 0 || toks.length === 0).sort((a, b) => b.score - a.score).slice(0, limit);
 }
 
 export function sessionHistory(tenant: TenantId, sessionId: string, limit = 20) {
