@@ -187,7 +187,12 @@ export default function Console() {
           <div className="space-y-5">
             <div className="glass rounded-3xl p-5">
               <div className="flex items-center justify-between mb-3">
-                <div className="mono text-xs text-cyanx">LIVE GRAPH · {graph.nodes?.length ?? 0} nodes · {graph.edges?.length ?? 0} edges</div>
+                <div className="mono text-xs text-cyanx">
+                  LIVE GRAPH · {graph.stats?.nodes ?? graph.nodes?.length ?? 0} nodes · {graph.stats?.edges ?? graph.edges?.length ?? 0} edges
+                  {graph.stats && graph.nodes && graph.nodes.length < graph.stats.nodes && (
+                    <span className="text-slate-400"> · showing {graph.nodes.length} focused around the answer</span>
+                  )}
+                </div>
                 <button onClick={() => loadGraph(tenant)} className="mono text-[11px] px-3 py-1.5 rounded-lg border border-line">reset view</button>
               </div>
               <GraphCanvas nodes={graph.nodes ?? []} edges={graph.edges ?? []} highlight={highlight} />
