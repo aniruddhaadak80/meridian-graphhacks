@@ -221,7 +221,7 @@ vercel --prod
 
 Env: `FALKORDB_URL` (optional, enables live mode), `TENANT_DEFAULT=acme-robotics`.
 
-**Benchmarks (local, `npm run eval`, deterministic mirror):**
+**Benchmarks (local, `npm run verify`, deterministic mirror):**
 
 | Check | Result |
 |---|---|
@@ -230,7 +230,8 @@ Env: `FALKORDB_URL` (optional, enables live mode), `TENANT_DEFAULT=acme-robotics
 | PageRank top | auth-service |
 | whoKnows payments-api | Marcus Webb, Ava Chen |
 | Ticket tk_5101 → inc_2041 path | 1 hop |
-| Total | 13/13 pass, chat p50 <100ms (mirror), live FalkorDB same queries via RESP |
+| Total | 13/13 eval + 24/24 tests pass, chat p50 <100ms (mirror), live FalkorDB same queries via RESP |
+| Ablation (graph severed) | 8/8 capabilities collapse — `npm run ablation` or `GET /api/proof` |
 
 ---
 
