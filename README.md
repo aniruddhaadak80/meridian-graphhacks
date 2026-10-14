@@ -92,6 +92,31 @@ redis-cli -h localhost -p 6379 GRAPH.QUERY meridian_acme-robotics "$(cat out/bun
 Or live: [`/api/cypher?mode=full`](https://meridian-graphhacks.vercel.app/api/cypher?mode=full) (bundles `CREATE INDEX` + one `MERGE` per node and per edge — idempotent, so re-running is safe).
 The reference sheet of the 7 queries the product depends on: [`/api/cypher`](https://meridian-graphhacks.vercel.app/api/cypher).
 
+### Run it against the real engine
+
+The app talks to real FalkorDB whenever one is reachable. Three ways, in order of convenience:
+
+```bash
+# A) zero-config embedded FalkorDB — no Docker (Linux x64 / macOS arm64)
+FALKORDB_EMBEDDED=1 npm run dev
+
+# B) Docker
+docker compose up -d falkordb
+FALKORDB_URL=redis://localhost:6379 npm run dev
+
+# C) FalkorDB Cloud / any remote instance
+FALKORDB_URL=redis://:password@your-instance:6379 npm run dev
+```
+
+Then load the graph into the engine and prove the queries run there:
+
+```bash
+npm run live:seed    # writes 87 nodes + 117 edges into meridian_<tenant>
+npm run live:check   # runs all 7 product queries against FalkorDB, prints ms + results
+```
+
+> On **Windows** the embedded engine is skipped with an explicit message (its binaries are linux-x64 / darwin-arm64 only). Use Docker or a remote `FALKORDB_URL`. The in-memory mirror keeps the demo fully functional either way — and `/api/health` always tells you which backend you got (`falkordb` vs `memory`).
+
 ## ⚡ 60-second demo (judge script)
 
 1. Open `/console` → click **“Investigate inc_2041”**.
@@ -254,6 +279,8 @@ scripts/test.ts       24 unit + integration tests (node:test, zero deps) — npm
 scripts/eval.ts      13 track checks across all 3 tracks — npm run eval
 scripts/ablation.ts  load-bearing proof (sever edges, keep records) — npm run ablation
 scripts/dump-cypher.ts  graph → bundle.cypher — npm run cypher
+scripts/live-seed.ts   push the graph into a real FalkorDB — npm run live:seed
+scripts/live-check.ts  run all 7 product queries against the live engine — npm run live:check
 scripts/shots.mjs    screenshot capture from the live deploy — npm run shots
 scripts/seed.ts      CLI seed — npm run seed
 public/{logo,screenshots/*,diagrams/*}  favicon, real screenshots, SVG diagrams

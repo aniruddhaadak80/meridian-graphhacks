@@ -39,3 +39,24 @@ jobs:
           npm run cypher -- ci-check -- out/bundle.cypher
           grep -c "^MERGE (" out/bundle.cypher
           grep -c "^MATCH (a {id:" out/bundle.cypher
+
+  live-falkordb:
+    name: real FalkorDB engine (embedded)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci || npm install
+
+      # Seeds 87 nodes / 117 edges into a REAL FalkorDB module and runs every
+      # product query against it. Proves the graph does the work on the engine.
+      - name: Live seed + query check
+        env:
+          FALKORDB_EMBEDDED: "1"
+        run: |
+          npm run live:seed
+          npm run live:check

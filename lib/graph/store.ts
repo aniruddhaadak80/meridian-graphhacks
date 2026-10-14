@@ -166,10 +166,45 @@ function logCypher(tenant: string, cypher: string) {
 
 let _db: any = null;
 let _connectTried = false;
+let _embedded = false;
+
+/**
+ * Embedded FalkorDB (falkordblite) — a real FalkorDB module bundled into the
+ * Node process. Zero-config, no Docker. Enabled with FALKORDB_EMBEDDED=1.
+ * Supported platforms: linux-x64, darwin-arm64 (per upstream). Elsewhere we
+ * report why it was skipped rather than silently degrading.
+ */
+export async function openEmbeddedFalkorDb(): Promise<any | null> {
+  if (process.env.FALKORDB_EMBEDDED !== "1") return null;
+  if (process.platform === "win32") {
+    console.warn(
+      "[meridian] FALKORDB_EMBEDDED=1 ignored on win32 — FalkorDBLite ships linux-x64 / darwin-arm64 binaries only. " +
+        "Use Docker (`docker compose up -d falkordb`) or set FALKORDB_URL to a remote/cloud instance."
+    );
+    return null;
+  }
+  try {
+    const mod: any = await import("falkordblite");
+    const db: any = await (mod.FalkorDB ?? mod.default?.FalkorDB).open();
+    _db = db;
+    _embedded = true;
+    _mode = "falkordb";
+    return db;
+  } catch (e: any) {
+    console.warn(`[meridian] embedded FalkorDB unavailable: ${e?.message ?? e}`);
+    return null;
+  }
+}
 
 async function falkorDb(): Promise<any | null> {
   if (_connectTried) return _db;
   _connectTried = true;
+
+  // 1) embedded (no Docker, real FalkorDB)
+  const embedded = await openEmbeddedFalkorDb();
+  if (embedded) return embedded;
+
+  // 2) remote / cloud / docker
   const url = process.env.FALKORDB_URL;
   if (!url) {
     _mode = "memory";
@@ -204,14 +239,23 @@ async function falkorDb(): Promise<any | null> {
 export async function backendStatus() {
   const db = await falkorDb();
   if (db) {
+    const url = _embedded ? "embedded://falkordblite" : maskUrl(process.env.FALKORDB_URL ?? "");
     try {
       const graphs = await db.list().catch(() => []);
-      return { mode: "falkordb" as const, url: maskUrl(process.env.FALKORDB_URL ?? ""), graphs: (graphs ?? []).length };
+      return { mode: "falkordb" as const, transport: _embedded ? "embedded" : "resp", url, graphs: (graphs ?? []).length };
     } catch {
-      return { mode: "falkordb" as const, url: maskUrl(process.env.FALKORDB_URL ?? ""), graphs: -1 };
+      return { mode: "falkordb" as const, transport: _embedded ? "embedded" : "resp", url, graphs: -1 };
     }
   }
-  return { mode: "memory" as const, url: null as string | null, graphs: tenants.size };
+  return { mode: "memory" as const, transport: "in-process", url: null as string | null, graphs: tenants.size };
+}
+
+/** Close the FalkorDB connection (scripts only; no-op in mirror mode). */
+export async function closeFalkorDb() {
+  if (_db && _embedded) {
+    try { await _db.close?.(); } catch { /* ignore */ }
+    _db = null;
+  }
 }
 
 function maskUrl(u: string) {
