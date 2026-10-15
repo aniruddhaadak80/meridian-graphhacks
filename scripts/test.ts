@@ -139,6 +139,24 @@ test("task handoff: create → claim → complete", async () => {
   assert.equal(done?.props.status, "done");
 });
 
+test("recall rejects coincidental substring noise", async () => {
+  // "iso" must not make "isolation" look like evidence for a specific query.
+  await rememberEpisode(T, "verify isolation by switching tenant", undefined, "s_noise");
+  const noise = recall(T, "LIVE-MARKER-9931", 5);
+  assert.equal(
+    noise.filter((r) => /isolation/i.test(String(r.node.props?.text ?? ""))).length,
+    0,
+    "a 3-char substring match must not surface unrelated memories"
+  );
+});
+
+test("recall still finds a genuinely matching episode", async () => {
+  await rememberEpisode(T, "ZXQWERTYPASSWORD incident: rotate keys immediately", undefined, "s_real");
+  const hits = recall(T, "ZXQWERTYPASSWORD", 5);
+  assert.ok(hits.length > 0, "a real distinctive match must be returned");
+  assert.match(String(hits[0].node.props?.text ?? ""), /ZXQWERTYPASSWORD/);
+});
+
 test("tenants are isolated — writes never leak", async () => {
   const A = "iso-a2", B = "iso-b2";
   await seedTenant(A);

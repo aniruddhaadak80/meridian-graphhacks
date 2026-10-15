@@ -27,18 +27,26 @@ export async function rememberFact(tenant: TenantId, text: string, aboutId?: str
 export function recall(tenant: TenantId, query: string, limit = 8) {
   const g = tenantGraph(tenant);
   const toks = query.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length > 2);
+  // A query with a distinctive token (>=4 chars) must be matched on that token.
+  // Without this, "isolation" scores as a hit for the token "iso", and recall
+  // returns coincidental substring noise dressed up as evidence.
+  const distinctive = toks.filter((t) => t.length >= 4);
   const mems = [...g.nodes.values()].filter((n) => n.labels.includes("Memory") || n.labels.includes("Episode") || n.labels.includes("Fact") || n.labels.includes("Decision") || n.labels.includes("Doc"));
+
   const scored = mems.map((m) => {
     const hay = JSON.stringify(m.props).toLowerCase();
     let score = 0;
-    for (const t of toks) if (hay.includes(t)) score += t.length > 5 ? 3 : 1;
-    return { node: m, score };
+    let matchedDistinctive = false;
+    for (const t of toks) {
+      if (!hay.includes(t)) continue;
+      score += t.length > 5 ? 3 : 1;
+      if (distinctive.includes(t)) matchedDistinctive = true;
+    }
+    return { node: m, score, matchedDistinctive };
   });
-  // No score = no evidence. Returning zero-score nodes would leak unrelated
-  // memories across topics (and look like cross-tenant leaks to callers that
-  // don't filter). Empty result is the honest answer — and the crew renders
-  // it as "none" with a Cypher trail to prove the search happened.
-  return scored.filter((s) => s.score > 0 || toks.length === 0).sort((a, b) => b.score - a.score).slice(0, limit);
+
+  const relevant = scored.filter((s) => s.score > 0 && (distinctive.length === 0 || s.matchedDistinctive));
+  return relevant.sort((a, b) => b.score - a.score || String(a.node.id).localeCompare(String(b.node.id))).slice(0, limit);
 }
 
 export function sessionHistory(tenant: TenantId, sessionId: string, limit = 20) {
