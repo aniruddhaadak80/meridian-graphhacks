@@ -47,8 +47,8 @@ export function runDebate(tenant: TenantId, question: string): DebateResult {
   });
 
   // Turn 2: SRE — page oncall first, gather more evidence
-  const br = anchor ? blastRadius(tenant, anchor.id) : { affected: [] };
-  const wk = anchor ? whoKnows(tenant, anchor.id) : { experts: [] };
+  const br = anchor ? blastRadius(tenant, anchor.id) : { affected: [], cypher: "" };
+  const wk = anchor ? whoKnows(tenant, anchor.id) : { experts: [], cypher: "" };
   if (br.cypher) cypherLog.push(br.cypher);
   if (wk.cypher) cypherLog.push(wk.cypher);
   turns.push({
@@ -57,7 +57,7 @@ export function runDebate(tenant: TenantId, question: string): DebateResult {
       { blastRadius: br.affected.length, downstream: br.affected.map((a) => (a.service.props as any).name) },
       { topExpert: wk.experts[0]?.person.props.name, expertRole: wk.experts[0]?.person.props.role },
     ],
-    cypher: [br.cypher, wk.cypher],
+    cypher: [br.cypher ?? "", wk.cypher ?? ""],
     confidence: br.affected.length > 0 ? 0.7 : 0.5,
   });
 

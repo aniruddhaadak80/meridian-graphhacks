@@ -13,5 +13,5 @@ export async function POST(req: Request) {
   const question = body.question ?? body.q ?? "";
   await seedTenant(tenant);
   const result = runDebate(tenant, question);
-  return NextResponse.json({ tenant, question, ...result });
+  return NextResponse.json({ tenant, ...result });
 }

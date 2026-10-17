@@ -104,7 +104,7 @@ export function runReAct(tenant: TenantId, question: string, maxIters = 6): ReAc
       observationSummary: `top expert: ${wk.experts[0]?.person.props.name}`,
       cypher: wk.cypher,
     });
-    logCypher(wk.cypher);
+    logCypher(wk.cypher ?? "");
     iters++;
   }
 

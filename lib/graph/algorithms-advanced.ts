@@ -8,7 +8,7 @@ import { TenantId, tenantGraph, outEdges, inEdges, nodesByLabel, MEdge } from ".
 type Id = string;
 type Weight = number;
 
-export interface CentralityResult { id: string; name: string; score: number; rank: number; label: string[]; props: any; }
+export interface CentralityResult { id: string; name: string; score: number; rank?: number; label?: string[]; props: any; }
 export interface CommunityResult { community: number; members: Array<{ id: string; name: string; labels: string[] }>; size: number; }
 export interface MaxFlowResult { from: string; to: string; value: number; paths: Array<{ edges: string[]; bottleneck: number }>; cypher: string; }
 
@@ -33,7 +33,7 @@ export function closenessCentrality(tenant: TenantId): CentralityResult[] {
   const adj = new Map<string, Set<string>>();
   for (const n of nodes) adj.set(n.id, new Set());
   for (const e of g.edges.values()) { adj.get(e.from)!.add(e.to); adj.get(e.to)!.add(e.from); }
-  const results: Array<{ id: string; name: string; score: number; labels: string[]; props: any }> = [];
+  const results: CentralityResult[] = [];
   for (const s of nodes) {
     const dist = new Map<string, number>([[s.id, 0]]);
     let frontier = [s.id];
@@ -45,13 +45,12 @@ export function closenessCentrality(tenant: TenantId): CentralityResult[] {
       frontier = next;
     }
     const reached = dist.size - 1;
-    const score = reached > 0 ? (reached - 1) / (dist.sum ?? 1) : 0;
-    // dist.sum computed below
-    (results as any).push({ id: s.id, name: (s.props as any).name ?? s.id, score: 0, labels: s.labels, props: s.props, _distSum: dist.sum ?? 1, _reached: reached });
+    let distSum = 0;
+    for (const dv of dist.values()) distSum += dv;
+    const score = reached > 0 ? (reached - 1) / Math.max(distSum, 1) : 0;
+    results.push({ id: s.id, name: (s.props as any).name ?? s.id, score, label: s.labels, props: s.props });
   }
-  // normalize sum
-  for (const r of results as any[]) r.score = r._reached > 0 ? (r._reached - 1) / r._distSum : 0;
-  return results.map(({ _distSum, _reached, ...rest }) => rest).sort((a, b) => b.score - a.score).map((r, i) => ({ ...r, rank: i + 1 }));
+  return results.sort((a, b) => b.score - a.score).map((r, i) => ({ ...r, rank: i + 1 }));
 }
 
 export function betweennessCentrality(tenant: TenantId, sampled = 200): CentralityResult[] {

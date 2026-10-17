@@ -32,13 +32,23 @@ const ADVANCED_TOOLS = [
   { name: "agent.debate", description: "Multi-agent debate: evidence wins, not opinion", cypher: "MATCH (n:Incident)-[:AFFECTS]->(s:Service) RETURN n, s" },
 ];
 
-export async function GET() {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const tenant = searchParams.get("tenant") ?? "acme-robotics";
+  const q = searchParams.get("q") ?? "";
+  const mode = searchParams.get("mode") ?? "hybrid";
+  await seedTenant(tenant);
+  if (q) {
+    buildVectorIndex(tenant);
+    const res = mode === "vector" ? vectorSearch(tenant, q, 10, 0.2) : hybridSearch(tenant, q, 10);
+    return NextResponse.json({ tenant, mode, q, ...res });
+  }
   return NextResponse.json({
     name: "meridian-advanced-mcp",
     version: "2.0.0",
     tools: ADVANCED_TOOLS,
     algoDocs: ADVANCED_ALGO_DOCS,
-    usage: "POST /api/advanced-mcp { tool, args, tenant }",
+    usage: "POST /api/advanced-mcp { tool, args, tenant } · GET /api/advanced-mcp?q=...&mode=hybrid|vector",
   });
 }
 
@@ -87,14 +97,4 @@ export async function POST(req: Request) {
   }
 }
 
-// Convenience endpoints used by the Cypher debugger UI
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const tenant = searchParams.get("tenant") ?? "acme-robotics";
-  await seedTenant(tenant);
-  const q = searchParams.get("q") ?? "";
-  const mode = searchParams.get("mode") ?? "hybrid";
-  buildVectorIndex(tenant);
-  const res = mode === "vector" ? vectorSearch(tenant, q, 10, 0.2) : hybridSearch(tenant, q, 10);
-  return NextResponse.json({ tenant, mode, ...res });
-}
+
