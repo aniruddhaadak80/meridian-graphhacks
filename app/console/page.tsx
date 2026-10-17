@@ -1,6 +1,10 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import GraphCanvas from "@/components/GraphCanvas";
+import CypherDebugger from "@/components/CypherDebugger";
+import AdvancedGraphPanel from "@/components/AdvancedGraphPanel";
+import VectorSearchPanel from "@/components/VectorSearchPanel";
+import ReActPanel from "@/components/ReActPanel";
 
 interface Step { agent: string; tool: string; input: any; outputSummary: string; cypher?: string; path?: string[] }
 interface ChatRes { answer: string; steps: Step[]; citations: any[]; actions: any[]; confidence: number; ms: number }
@@ -257,6 +261,14 @@ export default function Console() {
               </div>
             </>
           )}
+        </div>
+
+        {/* ADVANCED TOOLBOX */}
+        <div className="grid lg:grid-cols-2 gap-5 mt-5">
+          <CypherDebugger tenant={tenant} />
+          <AdvancedGraphPanel tenant={tenant} />
+          <VectorSearchPanel tenant={tenant} />
+          <ReActPanel tenant={tenant} />
         </div>
 
         {/* MCP strip */}
