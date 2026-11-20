@@ -33,7 +33,7 @@
     "autoprefixer": "^10.4.20",
     "falkordblite": "^0.3.0",
     "playwright-core": "^1.64.0",
-    "postcss": "8.5.33",
+    "postcss": "8.5.18",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.2",
     "typescript": "^5.7.0"
@@ -45,7 +45,21 @@
     "falkordblite@0.3.0": true
   },
   "overrides": {
-    "postcss": "8.5.33",
-    "postcss-selector-parser": "6.1.5"
+    "postcss": "8.5.18",
+    "postcss-selector-parser": "6.1.5",
+    "tar": "7.5.21",
+    "sharp": "0.35.5",
+    "undici": "8.12.2",
+    "js-yaml": "4.3.2",
+    "smol-toml": "1.7.1",
+    "follow-redirects": "1.16.2",
+    "axios": "1.20.0",
+    "fast-uri": "4.1.4",
+    "ip-address": "10.3.1",
+    "@azure/msal-node": "7.1.0",
+    "@opentelemetry/propagator-jaeger": "2.9.0",
+    "markdown-it": "14.3.3",
+    "source-map-js": "1.2.2",
+    "minimatch": "11.1.0"
   }
 }
